@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.netshell.app</groupId>
+    <artifactId>story-app</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+		<module>components/ws</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>4.11</junit.version>
+        <slf4j.version>1.7.12</slf4j.version>
+        <log4j.version>2.3</log4j.version>
+        <mockito.version>1.10.19</mockito.version>
+        <powermock.version>1.6.5</powermock.version>
+        <github.global.server>github</github.global.server>
+        <internal.maven.repo.uri>file://${user.dir}/target/mvn-repo</internal.maven.repo.uri>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>${internal.maven.repo.uri}</url>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>Maven Repository</id>
+            <url>https://raw.github.com/abhishek-12355/mvn-repo/master/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <finalName>story-app</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.5.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.1</version>
+                    <configuration>
+                        <altDeploymentRepository>internal.repo::default::${internal.maven.repo.uri}
+                        </altDeploymentRepository>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>0.11</version>
+                    <configuration>
+                        <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
+                        <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+                        <outputDirectory>target/mvn-repo
+                        </outputDirectory> <!-- matches distribution management repository url above -->
+                        <branch>refs/heads/master</branch>                       <!-- remote branch name -->
+                        <includes>
+                            <include>**/*</include>
+                        </includes>
+                        <!--<merge>true</merge>-->
+                        <repositoryName>mvn-repo</repositoryName>      <!-- github repo name -->
+                        <repositoryOwner>abhishek-12355</repositoryOwner>    <!-- github username  -->
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>github-deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.github</groupId>
+                        <artifactId>site-maven-plugin</artifactId>
+                        <version>0.11</version>
+                        <executions>
+                            <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                            <execution>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <phase>deploy</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!--<reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+
+                </configuration>
+                <reportSets>
+&lt;!&ndash;
+                    <reportSet>
+                        <id>non-aggregate</id>
+                        <configuration>
+                        </configuration>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+&ndash;&gt;
+                    <reportSet>
+                        <id>aggregate</id>
+                        <configuration>
+                        </configuration>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>-->
+
+</project>
