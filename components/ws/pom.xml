@@ -4,22 +4,102 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.netshell.app</groupId>
-		<artifactId>story-app</artifactId>
-		<version>1.0-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
-	</parent>
-	
+    <parent>
+        <groupId>com.netshell.app</groupId>
+        <artifactId>story-app</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
     <groupId>com.netshell.app.storyapp</groupId>
     <artifactId>story-app-ws</artifactId>
     <packaging>war</packaging>
 
-	<dependencies>
-	</dependencies>
+    <properties>
+        <swagger.client.directory>${project.build.directory}/generated-sources/swagger</swagger.client.directory>
+    </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.swagger/swagger-annotations -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.swagger/swagger-jaxrs -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-integration-cdi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jboss.weld.servlet/weld-servlet -->
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <finalName>story-app-ws</finalName>
+        <plugins>
+            <plugin><!-- https://mvnrepository.com/artifact/io.swagger/swagger-codegen-maven-plugin -->
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/story-app.yaml</inputSpec>
+                            <language>jaxrs-cxf</language>
+                            <apiPackage>com.netshell.app.myeduhub.services.rest.api</apiPackage>
+                            <modelPackage>com.netshell.app.myeduhub.services.rest.model</modelPackage>
+                            <configOptions>
+                                <sourceFolder>.</sourceFolder>
+                                <dateLibrary>java8</dateLibrary>
+                            </configOptions>
+                            <output>${swagger.client.directory}</output>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>clean-swagger-client</id>
+                        <phase>generate-sources</phase>
+                        <goals><goal>clean</goal></goals>
+                        <configuration>
+                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                            <filesets>
+                                <fileset>
+                                    <directory>${swagger.client.directory}</directory>
+                                    <excludes>
+                                        <exclude>com/**</exclude>
+                                    </excludes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>
